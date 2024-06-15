@@ -91,7 +91,16 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
         float RotationInput = MovementInput.X * RotationAmount * DeltaTime;
         AddActorLocalRotation(FRotator(0.0f, RotationInput, 0.0f));
     }
-    else if (bIsSlowingDown)
+    else
+    {
+        // Reset tilt smoothly
+        FRotator CurrentRotation = GetMesh()->GetRelativeRotation();
+        FRotator TargetRotation = FRotator(0.0f, CurrentRotation.Yaw, CurrentRotation.Roll);
+        FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, 5.0f);  // Adjust the interpolation speed as needed
+        GetMesh()->SetRelativeRotation(SmoothRotation);
+    }
+
+    if (bIsSlowingDown)
     {
         // Apply deceleration when the player is slowing down
         CurrentVelocity -= CurrentVelocity.GetSafeNormal() * Deceleration * DeltaTime;
