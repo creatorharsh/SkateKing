@@ -58,8 +58,12 @@ void ASkateboardCharacter::Tick(float DeltaTime)
 
 void ASkateboardCharacter::ApplyMovement(float DeltaTime)
 {
-    FVector ForwardDirection = GetActorForwardVector();
-    FVector RightDirection = GetActorRightVector();
+    // Get the mesh's forward and right vectors with an adjustment for the -90 degree yaw rotation
+    FRotator MeshRotation = GetMesh()->GetComponentRotation();
+    MeshRotation.Yaw += 90.0f; // Adjust for the -90 degree yaw rotation
+
+    FVector ForwardDirection = FRotationMatrix(MeshRotation).GetUnitAxis(EAxis::X);
+    FVector RightDirection = FRotationMatrix(MeshRotation).GetUnitAxis(EAxis::Y);
     FVector DesiredMovementDirection = (ForwardDirection * MovementInput.Y + RightDirection * MovementInput.X).GetSafeNormal();
 
     if (!MovementInput.IsNearlyZero())
@@ -69,8 +73,6 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
 
         // Apply acceleration in the direction of input
         CurrentVelocity += DesiredMovementDirection * ActualAcceleration * DeltaTime;
-
-        //UE_LOG(LogTemp, Log, TEXT("Applying Acceleration: CurrentVelocity = %s, MovementInput = %s"), *CurrentVelocity.ToString(), *MovementInput.ToString());
     }
     else if (bIsSlowingDown)
     {
