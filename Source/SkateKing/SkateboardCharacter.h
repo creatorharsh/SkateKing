@@ -15,12 +15,31 @@ public:
 	// Sets default values for this character's properties
 	ASkateboardCharacter();
 
+	// Camera boom positioning the camera behind the character
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	class USpringArmComponent* CameraBoom;
+
+	// Follow camera
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	class UCameraComponent* FollowCamera;
+
+	// Base turn rate, in deg/sec. Other scaling may affect final turn rate.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	float BaseTurnRate;
+
+	// Base look up/down rate, in deg/sec. Other scaling may affect final rate.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	float BaseLookUpRate;
+
 	// Character movement properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float Acceleration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float Deceleration;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float SpeedUpMultiplier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MaxSpeed;

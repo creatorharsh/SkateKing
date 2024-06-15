@@ -32,6 +32,9 @@ protected:
     class UInputAction* SlowDownAction;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+    class UInputAction* LookAction;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
     class UInputMappingContext* DefaultMappingContext;
 
 private:
@@ -39,6 +42,7 @@ private:
     void SpeedUp(const FInputActionValue& Value);
     void SlowDown(const FInputActionValue& Value);
     void Jump(const FInputActionValue& Value);
+    void Look(const FInputActionValue& Value);
 
     ASkateboardCharacter* SkateboardCharacter;
 	

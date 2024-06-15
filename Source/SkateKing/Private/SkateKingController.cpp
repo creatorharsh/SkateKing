@@ -30,6 +30,7 @@ void ASkateKingController::SetupInputComponent()
         EnhancedInputComponent->BindAction(SpeedUpAction, ETriggerEvent::Triggered, this, &ASkateKingController::SpeedUp);
         EnhancedInputComponent->BindAction(SlowDownAction, ETriggerEvent::Triggered, this, &ASkateKingController::SlowDown);
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASkateKingController::Jump);
+        EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASkateKingController::Look);
     }
 }
 
@@ -74,5 +75,15 @@ void ASkateKingController::Jump(const FInputActionValue& Value)
     if (Value.Get<bool>() && SkateboardCharacter)
     {
         SkateboardCharacter->LaunchCharacter(FVector(0, 0, SkateboardCharacter->JumpImpulse), false, true);
+    }
+}
+
+void ASkateKingController::Look(const FInputActionValue& Value)
+{
+    if (SkateboardCharacter)
+    {
+        FVector2D LookVector = Value.Get<FVector2D>();
+        SkateboardCharacter->AddControllerYawInput(LookVector.X * SkateboardCharacter->BaseTurnRate * GetWorld()->GetDeltaSeconds());
+        SkateboardCharacter->AddControllerPitchInput(LookVector.Y * -1.0f * SkateboardCharacter->BaseLookUpRate * GetWorld()->GetDeltaSeconds());
     }
 }

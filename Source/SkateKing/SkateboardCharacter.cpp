@@ -16,11 +16,15 @@ ASkateboardCharacter::ASkateboardCharacter()
     MaxSpeed = 1200.0f;
     JumpImpulse = 500.0f;
     Friction = 0.5f;  // Default friction value
+    SpeedUpMultiplier = 2.0f;
 
     MovementInput = FVector2D::ZeroVector;
     bIsSpeedingUp = false;
     bIsSlowingDown = false;
 
+    // Set turn rates for input
+    BaseTurnRate = 45.f;
+    BaseLookUpRate = 45.f;
 }
 
 // Called when the game starts or when spawned
@@ -47,9 +51,18 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
 
     if (!MovementInput.IsNearlyZero())
     {
+        // Determine the actual acceleration based on whether the player is speeding up
+        float ActualAcceleration = bIsSpeedingUp ? Acceleration * SpeedUpMultiplier : Acceleration;
+
         // Apply acceleration in the direction of input
-        CurrentVelocity += DesiredMovementDirection * Acceleration * DeltaTime;
-        //UE_LOG(LogTemp, Log, TEXT("Applying Acceleration: CurrentVelocity = %s, MovementInput = %s"), *CurrentVelocity.ToString(), *MovementInput.ToString());
+        CurrentVelocity += DesiredMovementDirection * ActualAcceleration * DeltaTime;
+
+        UE_LOG(LogTemp, Log, TEXT("Applying Acceleration: CurrentVelocity = %s, MovementInput = %s"), *CurrentVelocity.ToString(), *MovementInput.ToString());
+    }
+    else if (bIsSlowingDown)
+    {
+        // Apply deceleration when the player is slowing down
+        CurrentVelocity -= CurrentVelocity.GetSafeNormal() * Deceleration * DeltaTime;
     }
     else
     {
@@ -90,4 +103,3 @@ void ASkateboardCharacter::ApplyFriction(float DeltaTime)
         UE_LOG(LogTemp, Log, TEXT("Applying Friction: CurrentVelocity = %s, FrictionForce = %s"), *CurrentVelocity.ToString(), *FrictionForce.ToString());
     }
 }
-
