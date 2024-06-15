@@ -73,6 +73,17 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
 
         // Apply acceleration in the direction of input
         CurrentVelocity += DesiredMovementDirection * ActualAcceleration * DeltaTime;
+
+        // Apply tilt based on horizontal movement input (X-axis)
+        float TiltAmount = FMath::Clamp(MovementInput.X, -1.0f, 1.0f);
+        float TargetTilt = -TiltAmount * -15.0f;  // Adjust the tilt amount as needed; negative sign to correct direction
+
+        // Get current tilt and interpolate towards the target tilt
+        FRotator CurrentRotation = GetMesh()->GetRelativeRotation();
+        FRotator TargetRotation = FRotator(TargetTilt, CurrentRotation.Yaw, CurrentRotation.Roll);
+        FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, 5.0f);  // Adjust the interpolation speed as needed
+
+        GetMesh()->SetRelativeRotation(SmoothRotation);
     }
     else if (bIsSlowingDown)
     {
