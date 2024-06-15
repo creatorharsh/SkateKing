@@ -70,7 +70,7 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
         // Apply acceleration in the direction of input
         CurrentVelocity += DesiredMovementDirection * ActualAcceleration * DeltaTime;
 
-        UE_LOG(LogTemp, Log, TEXT("Applying Acceleration: CurrentVelocity = %s, MovementInput = %s"), *CurrentVelocity.ToString(), *MovementInput.ToString());
+        //UE_LOG(LogTemp, Log, TEXT("Applying Acceleration: CurrentVelocity = %s, MovementInput = %s"), *CurrentVelocity.ToString(), *MovementInput.ToString());
     }
     else if (bIsSlowingDown)
     {
@@ -113,6 +113,6 @@ void ASkateboardCharacter::ApplyFriction(float DeltaTime)
         {
             CurrentVelocity += FrictionForce;
         }
-        UE_LOG(LogTemp, Log, TEXT("Applying Friction: CurrentVelocity = %s, FrictionForce = %s"), *CurrentVelocity.ToString(), *FrictionForce.ToString());
+        //UE_LOG(LogTemp, Log, TEXT("Applying Friction: CurrentVelocity = %s, FrictionForce = %s"), *CurrentVelocity.ToString(), *FrictionForce.ToString());
     }
 }

@@ -40,18 +40,23 @@ void ASkateKingController::Move(const FInputActionValue& Value)
     {
         FVector2D MovementVector = Value.Get<FVector2D>();
 
-        // Check if MovementVector is zero, which indicates key release
-        if (MovementVector.IsNearlyZero())
+        // Update the MovementInput based on the current input
+        if (MovementVector.X != 0 || MovementVector.Y != 0)
         {
-            SkateboardCharacter->MovementInput = FVector2D::ZeroVector;
+            SkateboardCharacter->MovementInput.X += MovementVector.X;
+            SkateboardCharacter->MovementInput.Y += MovementVector.Y;
         }
         else
         {
-            SkateboardCharacter->MovementInput = MovementVector;
+            // Reset the MovementInput if no input is given
+            SkateboardCharacter->MovementInput = FVector2D::ZeroVector;
         }
 
-        //UE_LOG(LogTemp, Log, TEXT("Move: MovementInput = %s"), *SkateboardCharacter->MovementInput.ToString());
+        // Normalize the MovementInput to ensure diagonal movement is smooth
+        SkateboardCharacter->MovementInput = SkateboardCharacter->MovementInput.GetSafeNormal();
     }
+
+    UE_LOG(LogTemp, Log, TEXT("Move Function Called"));
 }
 
 void ASkateKingController::SpeedUp(const FInputActionValue& Value)
