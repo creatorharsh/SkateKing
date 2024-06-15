@@ -28,6 +28,8 @@ ASkateboardCharacter::ASkateboardCharacter()
     BaseTurnRate = 45.f;
     BaseLookUpRate = 45.f;
 
+    RotationAmount = 45.0f;
+
     // Create CameraBoom (pulls in towards the player if there is a collision)
     CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
     CameraBoom->SetupAttachment(RootComponent);
@@ -76,14 +78,18 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
 
         // Apply tilt based on horizontal movement input (X-axis)
         float TiltAmount = FMath::Clamp(MovementInput.X, -1.0f, 1.0f);
-        float TargetTilt = -TiltAmount * -15.0f;  // Adjust the tilt amount as needed; negative sign to correct direction
+        float TargetTilt = TiltAmount * 15.0f;  // Adjust the tilt amount as needed; negative sign to correct direction
 
         // Get current tilt and interpolate towards the target tilt
         FRotator CurrentRotation = GetMesh()->GetRelativeRotation();
-        FRotator TargetRotation = FRotator(TargetTilt, CurrentRotation.Yaw, CurrentRotation.Roll);
+        FRotator TargetRotation = FRotator(TargetTilt, CurrentRotation.Yaw, CurrentRotation.Roll);  // Correct the tilt to be left to right
         FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, 5.0f);  // Adjust the interpolation speed as needed
 
         GetMesh()->SetRelativeRotation(SmoothRotation);
+
+        // Apply rotation based on horizontal movement input (X-axis)
+        float RotationInput = MovementInput.X * RotationAmount * DeltaTime;
+        AddActorLocalRotation(FRotator(0.0f, RotationInput, 0.0f));
     }
     else if (bIsSlowingDown)
     {

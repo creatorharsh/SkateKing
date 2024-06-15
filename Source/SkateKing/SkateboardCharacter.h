@@ -50,6 +50,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float Friction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float RotationAmount;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FVector2D MovementInput;
 
