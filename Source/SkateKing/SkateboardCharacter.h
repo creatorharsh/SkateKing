@@ -50,6 +50,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float Friction;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	FVector2D MovementInput;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -60,7 +63,6 @@ public:
 
 private:
 	FVector CurrentVelocity;
-	FVector2D MovementInput;
 	bool bIsSpeedingUp;
 	bool bIsSlowingDown;
 
