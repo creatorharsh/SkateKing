@@ -10,7 +10,6 @@
 
 // Sets default values
 ASkateboardCharacter::ASkateboardCharacter()
-    : bIsInAir(false), bHasCheckedObstacles(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -34,6 +33,13 @@ ASkateboardCharacter::ASkateboardCharacter()
 
     RotationAmount = 45.0f;
     TiltMultiplier = 15.0f;
+
+    //Obstacle Detection
+    bIsInAir = false;
+    bHasCheckedObstacles = false;
+    bHasReachedMaxHeight = false;
+
+    SphereTraceRadius = 50.0f;
 
     // Create CameraBoom (pulls in towards the player if there is a collision)
     CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -68,16 +74,23 @@ void ASkateboardCharacter::Tick(float DeltaTime)
         {
             bIsInAir = true;
             bHasCheckedObstacles = false;
+            bHasReachedMaxHeight = false;
         }
-        else if (bIsInAir && !bHasCheckedObstacles && GetCharacterMovement()->Velocity.Z < 0)
+
+        if (!bHasReachedMaxHeight && GetCharacterMovement()->Velocity.Z <= 0)
+        {
+            bHasReachedMaxHeight = true;
+        }
+
+        if (bHasReachedMaxHeight && !bHasCheckedObstacles)
         {
             CheckForObstacles();
-            bHasCheckedObstacles = true;
         }
     }
     else
     {
         bIsInAir = false;
+        bHasReachedMaxHeight = false;
     }
 
 }
@@ -189,19 +202,20 @@ void ASkateboardCharacter::ApplyFriction(float DeltaTime)
 void ASkateboardCharacter::CheckForObstacles()
 {
     FVector Start = GetActorLocation() + CurrentVelocity * 0.1f; // Adjust start based on velocity
-    FVector End = Start - FVector(0, 0, 175.0f); // Adjust the ray length as needed
+    FVector End = Start - FVector(0, 0, 2000.0f); // Adjust the ray length as needed
 
     FHitResult HitResult;
     FCollisionQueryParams CollisionParams;
     CollisionParams.AddIgnoredActor(this);
 
-    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+    bool bHit = GetWorld()->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(SphereTraceRadius), CollisionParams);
 
     if (bHit)
     {
         float ObstacleHeight = Start.Z - HitResult.ImpactPoint.Z;
         UE_LOG(LogTemp, Log, TEXT("Obstacle detected. Height: %f"), ObstacleHeight);
         AwardPoints(ObstacleHeight);
+        bHasCheckedObstacles = true;
 
         // Draw debug line and point
         DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Green, false, 1.0f, 0, 5.0f);
@@ -210,6 +224,8 @@ void ASkateboardCharacter::CheckForObstacles()
     else
     {
         UE_LOG(LogTemp, Log, TEXT("No obstacle detected."));
+
+        // Draw debug line
         DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.0f, 0, 5.0f);
     }
 }

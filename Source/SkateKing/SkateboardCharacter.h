@@ -59,6 +59,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float TiltMultiplier;
 
+	// Sphere trace radius
+	UPROPERTY(EditAnywhere, Category = "Obstacle Detection")
+	float SphereTraceRadius;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FVector2D MovementInput;
 
@@ -87,6 +91,7 @@ private:
 	// Flags to track jumping state
 	bool bIsInAir;
 	bool bHasCheckedObstacles;
+	bool bHasReachedMaxHeight;
 
 	friend class ASkateKingController;
 
