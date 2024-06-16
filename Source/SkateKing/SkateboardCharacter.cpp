@@ -254,7 +254,7 @@ void ASkateboardCharacter::AwardPoints(float ObstacleHeight)
         SkateGameInstance->AddPoints(Points);
 
         // Play sound at the player's location
-        if (PointsAwardedSound)
+        if (PointsAwardedSound && Points != 0)
         {
             UGameplayStatics::PlaySoundAtLocation(this, PointsAwardedSound, GetActorLocation());
         }
