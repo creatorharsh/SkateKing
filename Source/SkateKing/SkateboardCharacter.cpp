@@ -188,8 +188,8 @@ void ASkateboardCharacter::ApplyFriction(float DeltaTime)
 
 void ASkateboardCharacter::CheckForObstacles()
 {
-    FVector Start = GetActorLocation();
-    FVector End = Start - FVector(0, 0, 500.0f); // Adjust the ray length as needed
+    FVector Start = GetActorLocation() + CurrentVelocity * 0.1f; // Adjust start based on velocity
+    FVector End = Start - FVector(0, 0, 175.0f); // Adjust the ray length as needed
 
     FHitResult HitResult;
     FCollisionQueryParams CollisionParams;
@@ -202,10 +202,15 @@ void ASkateboardCharacter::CheckForObstacles()
         float ObstacleHeight = Start.Z - HitResult.ImpactPoint.Z;
         UE_LOG(LogTemp, Log, TEXT("Obstacle detected. Height: %f"), ObstacleHeight);
         AwardPoints(ObstacleHeight);
+
+        // Draw debug line and point
+        DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Green, false, 1.0f, 0, 5.0f);
+        DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10.0f, FColor::Red, false, 1.0f);
     }
     else
     {
         UE_LOG(LogTemp, Log, TEXT("No obstacle detected."));
+        DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.0f, 0, 5.0f);
     }
 }
 
@@ -215,16 +220,16 @@ void ASkateboardCharacter::AwardPoints(float ObstacleHeight)
     {
         int32 Points = 0;
 
-        // Modular system for awarding points based on obstacle height
-        if (ObstacleHeight > 200.0f) // Adjust thresholds as needed
+        // Modular system for awarding more points for smaller obstacles
+        if (ObstacleHeight <= 50.0f) // Adjust thresholds as needed
         {
             Points = 100;
         }
-        else if (ObstacleHeight > 100.0f)
+        else if (ObstacleHeight <= 100.0f)
         {
             Points = 50;
         }
-        else if (ObstacleHeight > 50.0f)
+        else if (ObstacleHeight <= 200.0f)
         {
             Points = 25;
         }
