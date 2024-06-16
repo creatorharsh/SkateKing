@@ -2,6 +2,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "../SkateboardCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void ASkateKingController::BeginPlay()
 {
@@ -77,7 +78,7 @@ void ASkateKingController::SlowDown(const FInputActionValue& Value)
 
 void ASkateKingController::Jump(const FInputActionValue& Value)
 {
-    if (Value.Get<bool>() && SkateboardCharacter)
+    if (Value.Get<bool>() && SkateboardCharacter && SkateboardCharacter->GetCharacterMovement()->IsMovingOnGround())
     {
         SkateboardCharacter->LaunchCharacter(FVector(0, 0, SkateboardCharacter->JumpImpulse), false, true);
     }

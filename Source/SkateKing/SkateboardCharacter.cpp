@@ -7,6 +7,7 @@
 #include "SkateGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/MovementComponent.h"
 
 // Sets default values
 ASkateboardCharacter::ASkateboardCharacter()
@@ -162,26 +163,18 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
         CurrentVelocity = FVector::ZeroVector;
     }
 
-    FVector NewLocation = GetActorLocation() + (CurrentVelocity * DeltaTime);
+    FVector MovementDelta = CurrentVelocity * DeltaTime;
 
-    // Perform a line trace to check for collisions
+    // Perform a safe move to handle collisions smoothly
     FHitResult HitResult;
-    FCollisionQueryParams CollisionParams;
-    CollisionParams.AddIgnoredActor(this);
+    GetCharacterMovement()->SafeMoveUpdatedComponent(MovementDelta, GetActorRotation().Quaternion(), true, HitResult);
 
-    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), NewLocation, ECC_Visibility, CollisionParams);
-
-    if (!bHit)
+    // If we hit something, stop the movement
+    if (HitResult.IsValidBlockingHit())
     {
-        SetActorLocation(NewLocation);
-    }
-    else
-    {
-        // Handle collision (e.g., stop movement, adjust velocity, etc.)
         CurrentVelocity = FVector::ZeroVector;
     }
 }
-
 
 void ASkateboardCharacter::ApplyFriction(float DeltaTime)
 {
@@ -199,10 +192,12 @@ void ASkateboardCharacter::ApplyFriction(float DeltaTime)
     }
 }
 
+
+
 void ASkateboardCharacter::CheckForObstacles()
 {
     FVector Start = GetActorLocation() + CurrentVelocity * 0.1f; // Adjust start based on velocity
-    FVector End = Start - FVector(0, 0, 2000.0f); // Adjust the ray length as needed
+    FVector End = Start - FVector(0, 0, 200.0f); // Adjust the ray length as needed
 
     FHitResult HitResult;
     FCollisionQueryParams CollisionParams;
