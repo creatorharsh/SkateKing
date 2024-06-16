@@ -252,5 +252,11 @@ void ASkateboardCharacter::AwardPoints(float ObstacleHeight)
 
         UE_LOG(LogTemp, Log, TEXT("Awarded %d points for obstacle height: %f"), Points, ObstacleHeight);
         SkateGameInstance->AddPoints(Points);
+
+        // Play sound at the player's location
+        if (PointsAwardedSound)
+        {
+            UGameplayStatics::PlaySoundAtLocation(this, PointsAwardedSound, GetActorLocation());
+        }
     }
 }

@@ -59,6 +59,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float TiltMultiplier;
 
+	// Sound to play when awarding points
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* PointsAwardedSound;
+
 	// Sphere trace radius
 	UPROPERTY(EditAnywhere, Category = "Obstacle Detection")
 	float SphereTraceRadius;
