@@ -77,6 +77,17 @@ private:
 
 	void ApplyMovement(float DeltaTime);
 	void ApplyFriction(float DeltaTime);
+
+	// Raycast to check for obstacles during jump
+	void CheckForObstacles();
+
+	// Award points based on obstacle height
+	void AwardPoints(float ObstacleHeight);
+
+	// Flags to track jumping state
+	bool bIsInAir;
+	bool bHasCheckedObstacles;
+
 	friend class ASkateKingController;
 
 };

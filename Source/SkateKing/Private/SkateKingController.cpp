@@ -56,7 +56,7 @@ void ASkateKingController::Move(const FInputActionValue& Value)
         SkateboardCharacter->MovementInput = SkateboardCharacter->MovementInput.GetSafeNormal();
     }
 
-    UE_LOG(LogTemp, Log, TEXT("Move Function Called"));
+    //UE_LOG(LogTemp, Log, TEXT("Move Function Called"));
 }
 
 void ASkateKingController::SpeedUp(const FInputActionValue& Value)

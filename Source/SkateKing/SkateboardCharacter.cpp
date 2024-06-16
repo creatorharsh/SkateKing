@@ -4,10 +4,13 @@
 #include "SkateboardCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "SkateGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ASkateboardCharacter::ASkateboardCharacter()
+    : bIsInAir(false), bHasCheckedObstacles(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -57,6 +60,25 @@ void ASkateboardCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
     ApplyMovement(DeltaTime);
+
+
+    if (GetCharacterMovement()->IsFalling())
+    {
+        if (!bIsInAir)
+        {
+            bIsInAir = true;
+            bHasCheckedObstacles = false;
+        }
+        else if (bIsInAir && !bHasCheckedObstacles && GetCharacterMovement()->Velocity.Z < 0)
+        {
+            CheckForObstacles();
+            bHasCheckedObstacles = true;
+        }
+    }
+    else
+    {
+        bIsInAir = false;
+    }
 
 }
 
@@ -114,10 +136,12 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
         ApplyFriction(DeltaTime);
     }
 
-    // Clamp velocity to MaxSpeed
-    if (CurrentVelocity.Size() > MaxSpeed)
+    // Clamp velocity to MaxSpeed for forward movement and MaxBackSpeed for backward movement
+    float MaxAllowedSpeed = (CurrentVelocity | ForwardDirection) >= 0 ? MaxSpeed : MaxBackSpeed;
+
+    if (CurrentVelocity.Size() > MaxAllowedSpeed)
     {
-        CurrentVelocity = CurrentVelocity.GetSafeNormal() * MaxSpeed;
+        CurrentVelocity = CurrentVelocity.GetSafeNormal() * MaxAllowedSpeed;
     }
 
     if (CurrentVelocity.SizeSquared() < KINDA_SMALL_NUMBER)
@@ -145,6 +169,7 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
     }
 }
 
+
 void ASkateboardCharacter::ApplyFriction(float DeltaTime)
 {
     if (GetCharacterMovement()->IsMovingOnGround() && CurrentVelocity.Size() > 0)
@@ -158,5 +183,53 @@ void ASkateboardCharacter::ApplyFriction(float DeltaTime)
         {
             CurrentVelocity += FrictionForce;
         }
+    }
+}
+
+void ASkateboardCharacter::CheckForObstacles()
+{
+    FVector Start = GetActorLocation();
+    FVector End = Start - FVector(0, 0, 500.0f); // Adjust the ray length as needed
+
+    FHitResult HitResult;
+    FCollisionQueryParams CollisionParams;
+    CollisionParams.AddIgnoredActor(this);
+
+    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+
+    if (bHit)
+    {
+        float ObstacleHeight = Start.Z - HitResult.ImpactPoint.Z;
+        UE_LOG(LogTemp, Log, TEXT("Obstacle detected. Height: %f"), ObstacleHeight);
+        AwardPoints(ObstacleHeight);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("No obstacle detected."));
+    }
+}
+
+void ASkateboardCharacter::AwardPoints(float ObstacleHeight)
+{
+    if (USkateGameInstance* SkateGameInstance = Cast<USkateGameInstance>(UGameplayStatics::GetGameInstance(this)))
+    {
+        int32 Points = 0;
+
+        // Modular system for awarding points based on obstacle height
+        if (ObstacleHeight > 200.0f) // Adjust thresholds as needed
+        {
+            Points = 100;
+        }
+        else if (ObstacleHeight > 100.0f)
+        {
+            Points = 50;
+        }
+        else if (ObstacleHeight > 50.0f)
+        {
+            Points = 25;
+        }
+
+        UE_LOG(LogTemp, Log, TEXT("Awarded %d points for obstacle height: %f"), Points, ObstacleHeight);
+        SkateGameInstance->AddPoints(Points);
     }
 }
