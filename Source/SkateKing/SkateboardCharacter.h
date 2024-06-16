@@ -45,6 +45,9 @@ public:
 	float MaxSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float MaxBackSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float JumpImpulse;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -52,6 +55,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float RotationAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float TiltMultiplier;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FVector2D MovementInput;

@@ -16,6 +16,7 @@ ASkateboardCharacter::ASkateboardCharacter()
     Acceleration = 500.0f;
     Deceleration = 300.0f;
     MaxSpeed = 1200.0f;
+    MaxBackSpeed = 300.0f;
     JumpImpulse = 500.0f;
     Friction = 0.5f;  // Default friction value
     SpeedUpMultiplier = 2.0f;
@@ -29,6 +30,7 @@ ASkateboardCharacter::ASkateboardCharacter()
     BaseLookUpRate = 45.f;
 
     RotationAmount = 45.0f;
+    TiltMultiplier = 15.0f;
 
     // Create CameraBoom (pulls in towards the player if there is a collision)
     CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -58,6 +60,7 @@ void ASkateboardCharacter::Tick(float DeltaTime)
 
 }
 
+
 void ASkateboardCharacter::ApplyMovement(float DeltaTime)
 {
     // Get the mesh's forward and right vectors with an adjustment for the -90 degree yaw rotation
@@ -78,7 +81,7 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
 
         // Apply tilt based on horizontal movement input (X-axis)
         float TiltAmount = FMath::Clamp(MovementInput.X, -1.0f, 1.0f);
-        float TargetTilt = TiltAmount * 15.0f;  // Adjust the tilt amount as needed; negative sign to correct direction
+        float TargetTilt = TiltAmount * TiltMultiplier;  // Adjust the tilt amount as needed; negative sign to correct direction
 
         // Get current tilt and interpolate towards the target tilt
         FRotator CurrentRotation = GetMesh()->GetRelativeRotation();
@@ -123,9 +126,23 @@ void ASkateboardCharacter::ApplyMovement(float DeltaTime)
     }
 
     FVector NewLocation = GetActorLocation() + (CurrentVelocity * DeltaTime);
-    SetActorLocation(NewLocation);
 
-    //UE_LOG(LogTemp, Log, TEXT("End of ApplyMovement: CurrentVelocity = %s, MovementInput = %s"), *CurrentVelocity.ToString(), *MovementInput.ToString());
+    // Perform a line trace to check for collisions
+    FHitResult HitResult;
+    FCollisionQueryParams CollisionParams;
+    CollisionParams.AddIgnoredActor(this);
+
+    bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), NewLocation, ECC_Visibility, CollisionParams);
+
+    if (!bHit)
+    {
+        SetActorLocation(NewLocation);
+    }
+    else
+    {
+        // Handle collision (e.g., stop movement, adjust velocity, etc.)
+        CurrentVelocity = FVector::ZeroVector;
+    }
 }
 
 void ASkateboardCharacter::ApplyFriction(float DeltaTime)
@@ -141,6 +158,5 @@ void ASkateboardCharacter::ApplyFriction(float DeltaTime)
         {
             CurrentVelocity += FrictionForce;
         }
-        //UE_LOG(LogTemp, Log, TEXT("Applying Friction: CurrentVelocity = %s, FrictionForce = %s"), *CurrentVelocity.ToString(), *FrictionForce.ToString());
     }
 }
